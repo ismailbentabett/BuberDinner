@@ -50,16 +50,14 @@ namespace BuberDinner.Api.Controllers
                 request.Password
             );
             var response = new AuthenticationResponse
-                    (
-                        authResult.Id,
-                        authResult.FirstName,
-                        authResult.LastName,
-                        authResult.Email,
-                        authResult.Token
-                    );
+            (
+                authResult.Id,
+                authResult.FirstName,
+                authResult.LastName,
+                authResult.Email,
+                authResult.Token
+            );
             return Ok(response);
         }
-
-
     }
 }
