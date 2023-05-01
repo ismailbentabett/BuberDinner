@@ -1,63 +1,65 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BuberDinner.Application.Services.Authentication;
-using BuberDinner.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using BuberDinner.Contracts.Authentication;
+using ErrorOr;
+using BuberDinner.Domain.Common.Errors;
+using MediatR;
+using BuberDinner.Application.Authentication.Commands.Register;
+using BuberDinner.Application.Authentication.Queries.Login;
+using BuberDinner.Application.Authentication.Common;
 
-namespace BuberDinner.Api.Controllers
+namespace BuberDinner.Api.Controllers;
+
+[Route("authentication")]
+public class AuthenticationController : ApiController
 {
-    [ApiController]
-    [Route("auth")]
-    public class AuthenticationController : ControllerBase
+    private readonly ISender _mediator;
+
+    public AuthenticationController(ISender mediator)
     {
-        private readonly IAuthenticationService _authenticationService;
+        _mediator = mediator;
+    }
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+    [Route("register")]
+    public async Task<IActionResult> Register(RegisterRequest request)
+    {
+        var command = new RegisterCommand(
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.Password);
+
+        var authenticationResult = await _mediator.Send(command);
+
+        return authenticationResult.Match(
+            authenticationResult => Ok(MapAuthResult(authenticationResult)),
+            errors => Problem(errors));
+    }
+
+    private static AuthenticationResponse MapAuthResult(AuthenticationResult authenticationResult)
+    {
+        return new AuthenticationResponse(
+            authenticationResult.User.Id,
+            authenticationResult.User.FirstName,
+            authenticationResult.User.LastName,
+            authenticationResult.User.Email,
+            authenticationResult.Token);
+    }
+
+    [Route("login")]
+    public async Task<IActionResult> Login(LoginRequest request)
+    {
+        var query = new LoginQuery(request.Email, request.Password);
+        var authenticationResult = await _mediator.Send(query);
+
+        if(authenticationResult.IsError && authenticationResult.FirstError == Errors.Authentication.InvalidCredentials)
         {
-            _authenticationService = authenticationService;
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: authenticationResult.FirstError.Description);
         }
 
-        [Route("Register")]
-        [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            var authResult = _authenticationService.Register(
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.Password
-            );
-
-            var response = new AuthenticationResponse
-            (
-                authResult.User.Id,
-                authResult.User.FirstName,
-                authResult.User.LastName,
-                authResult.User.Email,
-                authResult.Token
-            );
-            return Ok(response);
-        }
-
-        [Route("Login")]
-        [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
-            var authResult = _authenticationService.Login(
-                request.Email,
-                request.Password
-            );
-            var response = new AuthenticationResponse
-            (
-                authResult.User.Id,
-              authResult.User.FirstName,
-                authResult.User.LastName,
-                authResult.User.Email,
-                authResult.Token
-            );
-            return Ok(response);
-        }
+        return authenticationResult.Match(
+            authenticationResult => Ok(MapAuthResult(authenticationResult)),
+            errors => Problem(errors));
     }
 }
