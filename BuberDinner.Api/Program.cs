@@ -3,11 +3,17 @@ using System.Reflection;
 
 using BuberDinner.Application;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using BuberDinner.Api;
+
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services
         .AddApplication()
-        .AddInfrastructure(builder.Configuration);
+        .AddInfrastructure(builder.Configuration)
+        
+            .AddPresentation()
+
+        ;
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
