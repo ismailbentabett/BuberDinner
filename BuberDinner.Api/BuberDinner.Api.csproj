@@ -7,18 +7,15 @@
     <UserSecretsId>39711040-ff52-49ee-8fa7-6f1414ce57dc</UserSecretsId>
   </PropertyGroup>
   
-
- <ItemGroup>
-<PackageReference Include="Mapster" Version="7.3.0" />
-<PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
-<PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
-<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.0.0" />  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\BuberDinner.Contracts\BuberDinner.Contracts.csproj" />
     <ProjectReference Include="..\BuberDinner.Application\BuberDinner.Application.csproj" />
-    
     <ProjectReference Include="..\BuberDinner.Infrastructure\BuberDinner.Infrastructure.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="MApster" Version="7.3.0" />
+    <PackageReference Include="MApster.DependencyInjection" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

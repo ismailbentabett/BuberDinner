@@ -1,35 +1,17 @@
-using BuberDinner.Api.Common.Errors;
-using System.Reflection;
-
-using BuberDinner.Application;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using BuberDinner.Api;
+using BuberDinner.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services
+        .AddPresentation()
         .AddApplication()
-        .AddInfrastructure(builder.Configuration)
-        
-            .AddPresentation()
-
-        ;
-
-    builder.Services.AddControllers();
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-    builder.Services.AddSingleton<ProblemDetailsFactory, BuberDinnerProblemDetailsFactory>();
+        .AddInfrastructure(builder.Configuration);
 }
 
 var app = builder.Build();
 {
     app.UseExceptionHandler("/error");
-        if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
     app.UseHttpsRedirection();
     app.MapControllers();
     app.Run();

@@ -16,9 +16,7 @@ public class AuthenticationController : ApiController
     private readonly ISender _mediator;
     private readonly IMapper _mapper;
 
-    public AuthenticationController(ISender mediator , 
-    
-    IMapper mapper)
+    public AuthenticationController(ISender mediator, IMapper mapper)
     {
         _mediator = mediator;
         _mapper = mapper;
@@ -27,23 +25,12 @@ public class AuthenticationController : ApiController
     [Route("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command =  _mapper.Map<RegisterCommand> (request);
-
+        var command = _mapper.Map<RegisterCommand>(request);
         var authenticationResult = await _mediator.Send(command);
 
         return authenticationResult.Match(
             authenticationResult => Ok(_mapper.Map<AuthenticationResponse>(authenticationResult)),
             errors => Problem(errors));
-    }
-
-    private static AuthenticationResponse MapAuthResult(AuthenticationResult authenticationResult)
-    {
-        return new AuthenticationResponse(
-            authenticationResult.User.Id,
-            authenticationResult.User.FirstName,
-            authenticationResult.User.LastName,
-            authenticationResult.User.Email,
-            authenticationResult.Token);
     }
 
     [Route("login")]
